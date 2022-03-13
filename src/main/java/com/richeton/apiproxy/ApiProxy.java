@@ -68,7 +68,7 @@ public class ApiProxy {
 		// Create a ServerConnector to accept connections from clients.
 		ServerConnector connector = new ServerConnector(server);
 		connector.setPort(port);
-		connector.setHost("localhost");
+		connector.setHost(bind);
 
 		// Add the Connector to the Server
 		server.addConnector(connector);

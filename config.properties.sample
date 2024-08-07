@@ -2,3 +2,4 @@ targetHost=https://target.server.com
 loginHost=https://auth.server.com
 port=8080
 bind=localhost
+threads=2

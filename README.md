@@ -43,6 +43,9 @@ port=8080
 
 # Accept only local connections
 bind=localhost
+
+# Number of WebDriver instances used for concurrent requests
+threads=2
 ```
 
 

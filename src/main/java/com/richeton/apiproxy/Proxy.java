@@ -13,10 +13,11 @@ import org.slf4j.LoggerFactory;
 
 public class Proxy {
 	private static Logger LOG = LoggerFactory.getLogger(Proxy.class);
-	private WebDriver driver;
 
 	private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 	private String loginUrl;
+	private int threads = 1;
+	private WebDriverPool webDriverPool;
 
 	/**
 	 * Load driver if found in the current path
@@ -32,13 +33,17 @@ public class Proxy {
 			System.setProperty("webdriver." + type + ".driver", f.getAbsolutePath());
 
 			switch (type) {
-			case "gecko":
-				driver = new FirefoxDriver();
-				break;
+				case "gecko":
+					for (int i = 0; i < threads; i++) {
+						webDriverPool.add(new FirefoxDriver());
+					}
+					break;
 
-			case "chrome":
-				driver = new ChromeDriver();
-				break;
+				case "chrome":
+					for (int i = 0; i < threads; i++) {
+						webDriverPool.add(new ChromeDriver());
+					}
+					break;
 			}
 		}
 	}
@@ -48,10 +53,12 @@ public class Proxy {
 	 */
 	public void close() {
 		exec.shutdown();
-		driver.close();
+		webDriverPool.close();
 	}
 
 	public String get(String url) throws InterruptedException, ExecutionException {
+		WebDriver driver = webDriverPool.get();
+
 		GetJsonCallable gj = new GetJsonCallable(driver, loginUrl, url);
 		FutureTask<String> result = new FutureTask<String>(gj);
 
@@ -61,21 +68,29 @@ public class Proxy {
 			LOG.error("Error retreiving content for {}", url, e);
 		}
 
+		webDriverPool.release(driver);
 		return result.get();
 	}
 
 	public void init() throws Exception {
+
+		webDriverPool = new WebDriverPool();
+
 		checkAndLoadDriver("gecko", "geckodriver");
 		checkAndLoadDriver("gecko", "geckodriver.exe");
 		checkAndLoadDriver("chrome", "chromedriver");
 		checkAndLoadDriver("chrome", "chromedriver.exe");
 
-		if (driver == null) {
+		if (webDriverPool.size() == 0) {
 			throw new Exception("Driver file missing !  geckodriver of chromedriver.");
 		}
 	}
 
 	public void setLoginUrl(String loginUrl) {
 		this.loginUrl = loginUrl;
+	}
+
+	public void setThreads(int threads) {
+		this.threads = threads;
 	}
 }

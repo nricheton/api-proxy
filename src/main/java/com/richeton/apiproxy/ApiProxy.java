@@ -24,11 +24,13 @@ public class ApiProxy {
 	private static final String CONFIG_LOGIN_HOST = "loginHost";
 	private static final String CONFIG_PORT = "port";
 	private static final String CONFIG_TARGET_HOST = "targetHost";
+	private static final String CONFIG_THREADS = "threads";
 
 	private static Logger LOG = LoggerFactory.getLogger(ApiProxy.class);
 	private static String loginHost = null;
 	private static int port = 8080;
 	private static String targetHost = null;
+	private static int threads = 1;
 
 	private static void loadConfig() throws IOException {
 		FileInputStream fis = new FileInputStream(new File("config.properties"));
@@ -39,6 +41,10 @@ public class ApiProxy {
 
 		if (properties.getProperty(CONFIG_PORT) != null) {
 			port = Integer.parseInt(properties.getProperty(CONFIG_PORT));
+		}
+
+		if (properties.getProperty(CONFIG_THREADS) != null) {
+			threads = Integer.parseInt(properties.getProperty(CONFIG_THREADS));
 		}
 
 		if (properties.getProperty(CONFIG_BIND) != null) {
@@ -57,6 +63,7 @@ public class ApiProxy {
 
 		final Proxy p = new Proxy();
 		p.setLoginUrl(loginHost);
+		p.setThreads(threads);
 		p.init();
 
 		QueuedThreadPool threadPool = new QueuedThreadPool();
@@ -134,6 +141,7 @@ public class ApiProxy {
 		LOG.info("Listening on " + bind + ":" + port);
 		LOG.info("Target Host is " + targetHost);
 		LOG.info("Login Host is " + loginHost);
+		LOG.info("Threads is " + threads);
 		LOG.info("");
 	}
 

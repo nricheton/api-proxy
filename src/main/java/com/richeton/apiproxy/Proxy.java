@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class Proxy {
 	private static Logger LOG = LoggerFactory.getLogger(Proxy.class);
 
-	private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+	private ScheduledThreadPoolExecutor exec;
 	private String loginUrl;
 	private int threads = 1;
 	private WebDriverPool webDriverPool;
@@ -73,7 +73,7 @@ public class Proxy {
 	}
 
 	public void init() throws Exception {
-
+		exec = new ScheduledThreadPoolExecutor(threads);
 		webDriverPool = new WebDriverPool();
 
 		checkAndLoadDriver("gecko", "geckodriver");
